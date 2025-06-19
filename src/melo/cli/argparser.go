@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/EdmilsonRodrigues/melo-project/src/melo/parser"
 )
 
 const (
@@ -22,7 +24,7 @@ type (
 
 var (
 	HelpFunction  HelpFunctionType = Help
-	BuildFunction BuildFunctionType
+	BuildFunction BuildFunctionType = parser.Build
 )
 
 func ParseArguments(arguments []string) {
