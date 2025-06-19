@@ -20,13 +20,13 @@ type (
 )
 
 var (
-	HelpFunction  HelpFunctionType
+	HelpFunction  HelpFunctionType = Help
 	BuildFunction BuildFunctionType
 )
 
 func ParseArguments(arguments []string) {
 	if len(arguments) < 1 {
-		fmt.Println("Error: Missing command")
+		fmt.Fprintf(os.Stderr, "Error: Missing command.\n\n")
 		HelpFunction()
 		return
 	}
@@ -36,19 +36,24 @@ func ParseArguments(arguments []string) {
 	switch command {
 	case BuildFlag:
 		usage := func() {
-			fmt.Fprintf(os.Stderr, "Usage: %s %s <inputPath> [-o <outputPath>]\n", os.Args[0], BuildFlag)
+			fmt.Fprintf(os.Stderr, "Usage: %s %s <inputPath> [--%s <outputPath>]\n", os.Args[0], BuildFlag, OutputFlag)
 			fmt.Fprintf(os.Stderr, "Options for '%s' command:\n", BuildFlag)
 			fmt.Fprintf(os.Stderr, "  --%s <outputPath>	Output folder path\n", OutputFlag)
 		}
 
 		if len(arguments) < 1 {
-			fmt.Println("Error: Missing input file path")
+			fmt.Fprint(os.Stderr, "Error: Missing input file path\n\n")
 			usage()
 			return
 		}
 
 		inputPath, arguments := arguments[0], arguments[1:]
-		outputPath := parseBuildArguments(arguments, usage)
+		outputPath, err := parseBuildArguments(arguments)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n\n", err.Error())
+			usage()
+			return
+		}
 
 		log.Printf("Building %s to %s\n", inputPath, outputPath)
 		BuildFunction(inputPath, outputPath)
@@ -57,27 +62,25 @@ func ParseArguments(arguments []string) {
 		HelpFunction()
 
 	default:
-		fmt.Println("Error: Unknown command")
+		fmt.Fprint(os.Stderr, "Error: Unknown command\n\n")
 		HelpFunction()
 	}
 }
 
-func parseBuildArguments(arguments []string, usage HelpFunctionType) (outputPath string) {
+func parseBuildArguments(arguments []string) (outputPath string, err error) {
 	outputPath = DefaultOutputPath
 	for len(arguments) > 0 {
 		usedArguments := 0
 		switch arguments[0] {
 		case fmt.Sprintf("--%s", OutputFlag):
 			if len(arguments) < 2 {
-				fmt.Println("Error: Missing output folder path")
-				usage()
+				err = fmt.Errorf("error: Missing output folder path")
 				return
 			}
 			outputPath = arguments[1]
 			usedArguments = 2
 		default:
-			fmt.Println("Error: Unknown option")
-			usage()
+			err = fmt.Errorf("error: Unknown option")
 			return
 		}
 		arguments = arguments[usedArguments:]
