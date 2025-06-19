@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 const (
@@ -38,20 +39,28 @@ func ParseArguments(arguments []string) {
 		usage := func() {
 			fmt.Fprintf(os.Stderr, "Usage: %s %s <inputPath> [--%s <outputPath>]\n", os.Args[0], BuildFlag, OutputFlag)
 			fmt.Fprintf(os.Stderr, "Options for '%s' command:\n", BuildFlag)
-			fmt.Fprintf(os.Stderr, "  --%s <outputPath>	Output folder path\n", OutputFlag)
+			fmt.Fprintf(os.Stderr, "  --%s <outputPath>	Output folder path\n\n", OutputFlag)
 		}
 
 		if len(arguments) < 1 {
 			fmt.Fprint(os.Stderr, "Error: Missing input file path\n\n")
 			usage()
+			HelpFunction()
 			return
 		}
 
 		inputPath, arguments := arguments[0], arguments[1:]
+		if strings.HasPrefix(inputPath, "-") {
+			fmt.Fprint(os.Stderr, "Error: Missing input file path\n\n")
+			usage()
+			HelpFunction()
+			return
+		}
 		outputPath, err := parseBuildArguments(arguments)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n\n", err.Error())
 			usage()
+			HelpFunction()
 			return
 		}
 
