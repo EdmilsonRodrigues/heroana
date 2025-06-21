@@ -1,0 +1,26 @@
+[project]
+name = "melo-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Edmilson Monteiro Rodrigues Neto", email = "edmilson.rodriguesn38@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.0",
+]
+
+[tool.ruff]
+line-length = 79
+preview = true
+
+[tool.ruff.lint]
+select = ["UP", "F", "W", "E", "I", ]
